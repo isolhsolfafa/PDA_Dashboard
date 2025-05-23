@@ -12,15 +12,11 @@
     .product-list { margin-bottom: 5px; }
     .pagination { margin-top: 10px; }
     .pagination button { margin: 0 5px; }
-    .back-button { margin: 10px 0; padding: 8px 16px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
-    .back-button:hover { background-color: #0056b3; }
   </style>
 </head>
 <body>
   <h2>📊대분류/중분류별[클릭 상세🔎]</h2>
-  <div id="chartArea">
-    <canvas id="barChart" width="1100" height="480"></canvas>
-  </div>
+  <canvas id="barChart" width="1100" height="480"></canvas>
   <div id="detailsArea"></div>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -97,13 +93,7 @@
       });
 
       function showDetail(key, label, page = 1, perPage = 10) {
-        const chartArea = document.getElementById('chartArea');
         const area = document.getElementById('detailsArea');
-
-        // 차트 숨기기
-        chartArea.style.display = "none";
-
-        // 상세 데이터 표시
         if (!(key in detailsDict)) {
           area.innerHTML = `<div class="detail-box">❌ 데이터가 없습니다: ${label}</div>`;
           document.querySelector('.detail-box').style.display = "block";
@@ -114,7 +104,6 @@
         const start = (page - 1) * perPage;
         const end = start + perPage;
         let html = `<div class="detail-box"><strong>상세 [${label}]</strong><br>`;
-        html += `<button class="back-button" onclick="goBack()">뒤로가기</button>`;
         let anyProduct = false;
         prodKeys.slice(start, end).forEach(prod => {
           html += `<div class="product-title">🔹 ${prod}</div>`;
@@ -140,13 +129,6 @@
         html += '</div>';
         area.innerHTML = html;
         document.querySelector('.detail-box').style.display = "block";
-      }
-
-      function goBack() {
-        const chartArea = document.getElementById('chartArea');
-        const area = document.getElementById('detailsArea');
-        chartArea.style.display = "block";
-        area.innerHTML = "";
       }
     });
   </script>
