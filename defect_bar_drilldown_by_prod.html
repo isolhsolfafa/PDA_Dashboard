@@ -1,0 +1,136 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>불량 대분류/중분류 Bar Chart</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .detail-box { display: none; margin: 8px 0 18px 0; padding: 10px; background: #f9f9f9; border-radius: 8px; max-height: 400px; overflow-y: auto; }
+    .detail-row { margin: 2px 0; font-size: 13px; }
+    .product-title { margin: 9px 0 3px 0; font-weight: bold; font-size: 14px; color: #111; }
+    .product-list { margin-bottom: 5px; }
+    .pagination { margin-top: 10px; }
+    .pagination button { margin: 0 5px; }
+  </style>
+</head>
+<body>
+  <h2>불량 대분류/중분류별 Bar Chart (클릭 상세 VIEW)</h2>
+  <canvas id="barChart" width="1100" height="480"></canvas>
+  <div id="detailsArea"></div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Chart.js 로드 확인
+      console.log("Chart.js 로드 확인:", typeof Chart !== 'undefined' ? "성공" : "실패");
+      if (typeof Chart === 'undefined') {
+        document.getElementById('detailsArea').innerHTML = "<div class='detail-box'>❌ Chart.js 로드 실패</div>";
+        document.querySelector('.detail-box').style.display = "block";
+        return;
+      }
+
+      // JSON 데이터 삽입
+      const barDataJson = '[{"bar_key": "기구작업불량 / Leak", "count": 28}, {"bar_key": "기구작업불량 / 오조립", "count": 2}, {"bar_key": "부품불량 / Leak", "count": 3}, {"bar_key": "부품불량 / 사양불일치", "count": 3}, {"bar_key": "부품불량 / 조립불량", "count": 4}, {"bar_key": "설계불량 / 설계오류", "count": 13}, {"bar_key": "작업불량 / 기구작업", "count": 3}, {"bar_key": "작업불량 / 마무리작업", "count": 1}, {"bar_key": "작업불량 / 전장작업", "count": 1}, {"bar_key": "전장작업불량 / 오배선", "count": 1}, {"bar_key": "전장작업불량 / 파손", "count": 5}]';
+      const detailsDictJson = '{"기구작업불량 / Leak": {"DRAGON AB": [["N2 MALE ELBOW Teflon 부족 / Main N2 MALE ELBOW PL10-02 Teflon 조립부 Leak (Teflon 코팅 후 입고파트)", "Teflon 작업"]], "DRAGON AB DUAL": [["MALE ELBOW JACO FITTING NUT Leak / Manifold 연결 MALE ELBOW KQ2H08-03NS Jaco Fitting Nut Leak / 재조립", "재체결"], ["TUBE SPLICER 삽입부 Leak / TUBE SPLICER PU12 Leak / 재조립 후 이상 없음 확인", "재체결"], ["O2 Line REDUCING UNION TEE Fitting Nut Leak / O2 Line REDUCING UNION TEE RT08-08-04 04 Fitting Nut", "재체결"], ["LNG Line REDUCING UNION TEE Fitting Nut Leak / LNG Line REDUCING UNION TEE RT08-08-06 06Fitting Nut", "재체결"], ["MALE ELBOW JACO FITTING NUT Leak / Manifold 연결 MALE ELBOW KQ2H08-03NS Jaco Fitting Nut Leak / 재조립", "재체결"], ["N2 TUBE SPLICER PU 12 삽입부 Leak / Diaphram Valve 간섭으로 인한 틀어짐 의심", "재체결"], ["Left Circulation Quench T LIne Teflon 부 Leak 발생", "재작업"], ["PCW-S MALE ELBOW Teflon 부족 / Heat Exchanger 조립 PCW-S IN단 MALE ELBOW ME08-08R 테퓨론부족 Leak", "재작업"], ["N2 REDUCING DOUBLE Y UNION 08 우레탄튜브 삽입부 Leak / REDUCING DOUBLE Y UNION PXG 08-06 08 우레탄튜브 삽입불량 Leak", "파트교체"], ["Circulation Quench Line PP Nut Leak", "재체결"], ["O-Ring 변형 / Swirl Guide 후면부 Nozzle 체결부 체결볼트 과체결로 O-ring P14 FKM 변형 Leak", "파트교체"], ["MALE ELBOW JACO FITTING NUT 체결불량 / Manifold 연결 MALE ELBOW KQ2H08-03NS Jaco Fitting Nut 체결 강도 부족 Lea", "재체결"], ["O-Ring 변형 / Swirl Guide 전면부 Nozzle 체결부 체결볼트 과체결로 O-ring P14 FKM 변형 Leak", "파트교체"], ["O-Ring 씹힘 / Bunner GAS Nozzle Top 체결부 O-Ring AS568 119 FKM 씹힘 Leak", "파트교체"], ["O-Ring 변형 / Swirl Guide 전면부 Nozzle 체결부 체결볼트 과체결로 O-ring P14 FKM 변형 Leak", "파트교체"], ["O-Ring 변형 / Swirl Guide 후면부 Nozzle 체결부 체결볼트 과체결로 O-ring P14 FKM 변형 Leak", "파트교체"]], "DRAGON LE DUAL": [["MALE ELBOW JACO FITTING NUT 나사산파손 / Manifold 연결 MALE ELBOW KQ2H08-03NS Jaco Fitting Nut 과체결로 나사산파손", "파트교체"]], "GAIA-I": [["PCW Bunner 연결부 UNION ELBOW Fitting Nut LEAK/UNION ELBOW 04 Fitting Nut 체결강도부족 Leak", "재체결"]], "GAIA-I DUAL": [["CDA 주입 BULKHEAD UNION 하단부 Fitting Nut Leak / CDA 주입 BULKHEAD UNION BU 08 하단부 Fitting Nut Leak", "재체결"], ["MALE ELBOW JACO Fitting Nut Leak / MALE ELBOW 40-8-6-K-PG Fitting Nut Leak / 이동 및 조립과정 중 풀림 의심", "재체결"], ["UNION TEE Fitting Nut Leak / UNION TEE 70-8-K-PG 하단 JACO Fitting Nut 체결강도부족 , 가압 시 탈거 후 원복누락", "재체결"], ["O-Ring 씹힘 /Temp Sensor SOKET 체결 O-RING AS568 015 씹힘 Leak", "파트교체"], ["UNION ELBOW Fitting Nut Leak/ BYPASS#4 PE140 PFA 튜브 삽입부 Fitting Nut 체결강도부족 Leak", "재체결"], ["Cir\' Water Quench Line Nut 부 미세 Water Leak 발생", "재작업"], ["REDUCING UNION TEE(06M) Fitting Nut Leak / N.PE140 PFA 튜브 삽입부 Fitting Nut 체결강도부족 Leak", "재체결"], ["CDA Male Connector Teflon 부족 / Main CDA Male Connector 테퓨론부 Leak / 파트 테퓨론 밀림 의심 , 테퓨론 추가작업 후 재조립", "Teflon 작업"]], "GAIA-P DUAL": [["Circulation Line Teflon 부 Leak", "Teflon 재작업"]]}, "기구작업불량 / 오조립": {"GAIA-P": [["CDA 레귤레이터 튜빙 교차 연결(In, Out)", "재연결"]], "GAIA-P DUAL": [["Right Torch Voltage Hunting 발생으로 Burning 불가(Torch 내 Anode O-Ring 파손)", "O-Ring 교체 후 재조립"]]}, "부품불량 / Leak": {"DRAGON AB": [["Tank 가공면 상태 불량으로 Leak 발생", "현장 조치(가공면 재작업 및 O-ring 교체)"]], "GAIA-I DUAL": [["Right Cir Water Filter 상부 용접부 Leak", "대체품 교체"], ["Left Circulation Manifold 용접부 Leak 발생", "대체품 조치"]]}, "부품불량 / 사양불일치": {"GAIA-I DUAL": [["각인 누락", "수정 후 입고"], ["상이한 품번으로 각인", "대체품 교체"]], "GAIA-P": [["접지너트 1 Point 용접 누락", "현장 조치(접지너트 용접)"]]}, "부품불량 / 조립불량": {"DRAGON AB DUAL": [["Heating Jacket Cable Label 누락", "대체품 입고"]], "DRAGON AB SINGLE": [["Nozzle 방향 틀어져 Flange와 수직으로 체결되지 않음", "대체품 교체"]], "GAIA-I DUAL": [["나사산 체결 불량", "대체품 교체"]], "GAIA-P DUAL": [["Bolt 체결 불가", "대체품 교체"]]}, "설계불량 / 설계오류": {"DRAGON-DUAL": [["도면 內 용접 기호 미 표기_용접 비드 간섭으로 체결 불가", "도면 수정"]], "GAIA-I": [["N2 Utility Line Elbow Fitting 적용 오류", "BOM 및 도면 수정"], ["CDA Regulator 고정 Bracket 기존 도면과 상이", "도면 수정"], ["Interlock Relay Tag Name 오류(정상: KRF800 / 오류: KRF480)", "도면 수정"], ["Level Sensor Spray Elbow Fitting 적용 누락", "BOM 변경(Elbow Fitting 추가)"]], "GAIA-I DUAL": [["Inlet Line 연결부 Center O-ring 적용 누락", "BOM 수정"], ["Union Y Fitting 사양 적용 오류(정상: SMC / 오류: 상아)", "도면 수정"], ["전장도면 內 Sol Valve 구성 오류(정상: 전기 Sol V/V, 오류: 공압 Sol V/V)", "도면 수정"], ["Y-Reactor 품번 구성 오류(Left, Right 품번 동일)", "BOM 변경(Left Y-Reactor 품번 변경)"], ["P&ID 內 Waste Gas Line Ball Valve 표기 오류", "P&ID 수정(PE110, 130 삭제)"]], "GAIA-P DUAL": [["Ball Valve Plug 수량 1ea 부족", "BOM 수정"], ["End Clamp BOM 수량 오류(정상: 87ea / 오류: 83ea)", "BOM 수정"], ["Cabinet CDA Line 다연조 Sol 고정 Tap 위치 설정 오류", "도면 수정"]]}, "작업불량 / 기구작업": {"DRAGON AB DUAL": [["Left, Right O2 MFC Sticker 오부착(FD312<>FD322)", ""]], "GAIA-P": [["N2 소화시스템 Sticker 및 방향식별 Sticker 누락", "재작업"]], "GAIA-P DUAL": [["Heating Jacket 부분 손상", "신규 제작 후 Line 서 조치 예정"]]}, "작업불량 / 마무리작업": {"GAIA-I DUAL": [["Flow Sensor 파트 포장중 파손", ""]]}, "작업불량 / 전장작업": {"DRAGON AB": [["Tower Lamp Sticker 누락", "Sticker 부착"]]}, "전장작업불량 / 오배선": {"DRAGON AB DUAL": [["Left, Right O2 MFC Connector 오체결(O2 Flow 불가/FD312<>FD322)", "Connector 재체결"]]}, "전장작업불량 / 파손": {"DRAGON AB DUAL": [["O-Ring 조립 불량 / Level Sensor 내부 O-Ring G50 조립 불량으로 Leak", "재체결"], ["O-Ring 조립 불량 / Level Sensor 내부 O-Ring 조립 불량으로 Leak", "재체결"]], "DRAGON LE DUAL": [["O-Ring 조립 불량 / Level Sensor 내부 O-Ring G50 조립 불량으로 Leak", "재체결"], ["O-Ring 조립 불량 / Level Sensor 내부 O-Ring G50 조립 불량으로 Leak", "재체결"]], "GAIA-I DUAL": [["Level Sensor 체결 Nut Leak / Level Sensor 체결 Nut G2 1/4 PP(WHITE) Leak / TMS 모듈 가압시 이상없음 확인, 가압공정 재체결", "재체결"]]}}';
+
+      // JSON 파싱
+      let barData, detailsDict;
+      try {
+        barData = JSON.parse(barDataJson);
+        detailsDict = JSON.parse(detailsDictJson);
+      } catch (e) {
+        console.error("JSON 파싱 오류:", e);
+        console.log("barDataJson:", barDataJson);
+        console.log("detailsDictJson:", detailsDictJson);
+        document.getElementById('detailsArea').innerHTML = "<div class='detail-box'>❌ 데이터 로드 오류: " + e.message + "</div>";
+        document.querySelector('.detail-box').style.display = "block";
+        return;
+      }
+
+      // 데이터 디버깅
+      console.log("barData:", barData);
+      const labels = barData.map(r => r['bar_key']);
+      const counts = barData.map(r => r['count']);
+      console.log("labels:", labels);
+      console.log("counts:", counts);
+
+      // canvas 확인
+      const ctx = document.getElementById('barChart').getContext('2d');
+      console.log("canvas 요소:", ctx);
+      if (!ctx) {
+        console.error("canvas 요소를 찾을 수 없습니다.");
+        document.getElementById('detailsArea').innerHTML = "<div class='detail-box'>❌ 차트 렌더링 실패</div>";
+        document.querySelector('.detail-box').style.display = "block";
+        return;
+      }
+
+      // 차트 초기화
+      const myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: '건수',
+            data: counts,
+            backgroundColor: 'rgba(0,123,255,0.6)'
+          }]
+        },
+        options: {
+          responsive: false,
+          onClick: (evt, el) => {
+            if (el.length > 0) {
+              const idx = el[0].index;
+              const key = labels[idx];
+              showDetail(key, labels[idx]);
+            }
+          },
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: { ticks: { autoSkip: false, maxRotation: 70, minRotation: 20, font: { size: 10 } } }
+          }
+        }
+      });
+
+      function showDetail(key, label, page = 1, perPage = 10) {
+        const area = document.getElementById('detailsArea');
+        if (!(key in detailsDict)) {
+          area.innerHTML = `<div class="detail-box">❌ 데이터가 없습니다: ${label}</div>`;
+          document.querySelector('.detail-box').style.display = "block";
+          return;
+        }
+        const prodMap = detailsDict[key];
+        let prodKeys = Object.keys(prodMap);
+        const start = (page - 1) * perPage;
+        const end = start + perPage;
+        let html = `<div class="detail-box"><strong>상세 [${label}]</strong><br>`;
+        let anyProduct = false;
+        prodKeys.slice(start, end).forEach(prod => {
+          html += `<div class="product-title">🔹 ${prod}</div>`;
+          const plist = prodMap[prod];
+          if (plist.length === 0) {
+            html += '<div class="detail-row">데이터 없음</div>';
+          } else {
+            html += '<div class="product-list">';
+            plist.forEach(row => {
+              html += `<div class="detail-row">▪️ ${row[0]} / <span style="color:#888;">${row[1]}</span></div>`;
+            });
+            html += '</div>';
+            anyProduct = true;
+          }
+        });
+        if (!anyProduct) html += '<div class="detail-row">데이터 없음</div>';
+        if (prodKeys.length > perPage) {
+          html += `<div class="pagination">`;
+          if (page > 1) html += `<button onclick="showDetail('${key}', '${label}', ${page - 1})">이전</button>`;
+          if (end < prodKeys.length) html += `<button onclick="showDetail('${key}', '${label}', ${page + 1})">다음</button>`;
+          html += `</div>`;
+        }
+        html += '</div>';
+        area.innerHTML = html;
+        document.querySelector('.detail-box').style.display = "block";
+      }
+    });
+  </script>
+</body>
+</html>
