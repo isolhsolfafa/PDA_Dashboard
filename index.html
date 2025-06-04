@@ -29,8 +29,8 @@
       }
 
       // JSON 데이터 삽입
-      const barDataJson = '[{"bar_key": "기구작업불량 / Leak", "count": 2, "losstime": 20.0}]';
-      const detailsDictJson = '{"기구작업불량 / Leak": {"GAIA-I DUAL": [["Circulation 라인 NUT부 Leak 발생", "Nut 부 재조립", 10.0], ["FEMALE CONNECTOR Fitting Nut Leak / HeatExchanger 연결 PCW-R FEMALE CONNECTOR FC08-12R Fitting Nut 체결강", "재체결", 10.0]]}}';
+      const barDataJson = '[{"bar_key": "기구작업불량 / Leak", "count": 3, "losstime": 40.0}, {"bar_key": "부품불량 / 외관불량", "count": 1, "losstime": 35.0}, {"bar_key": "설계불량 / 설계오류", "count": 2, "losstime": 21.0}]';
+      const detailsDictJson = '{"기구작업불량 / Leak": {"GAIA-I DUAL": [["Circulation Line Nut 부 Leak 발생", "Nut 부 재조립", 20.0], ["Circulation 라인 NUT부 Leak 발생", "Nut 부 재조립", 10.0], ["FEMALE CONNECTOR Fitting Nut Leak / HeatExchanger 연결 PCW-R FEMALE CONNECTOR FC08-12R Fitting Nut 체결강", "재체결", 10.0]]}, "부품불량 / 외관불량": {"SWS-I": [["Inlet Plate 각인 누락", "수정 후 입고", 35.0]]}, "설계불량 / 설계오류": {"GAIA-I": [["CDA 공급단 PFA Tube 규격 표기 오류(정상: 6mm / 오류: 1/4\")", "도면 수정", 12.0]], "SWS-I": [["Nozzle Flange와 Male Connector 규격 상이하여 체결 불가", "BOM 및 도면 수정(Fitting Size 변경)", 9.0]]}}';
 
       // JSON 파싱
       let barData, detailsDict;
